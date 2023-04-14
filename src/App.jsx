@@ -6,31 +6,35 @@ function DateTime(props) {
     return (
         <p className="date">{props.date}</p>
     )
+    
 }
 
 const withFormattedDate = (Component) => {
-  const FormattedDate = ({ date, ...rest }) => {
-    const [formattedDate, setFormattedDate] = useState(date);
+    return function(props) {
+        const { date } = props;
+        const [formattedDate, setFormattedDate] = useState(date);
 
-    useEffect(() => {
-      const currentDate = new Date();
-      const diff = currentDate - new Date(date);
+        useEffect(() => {
+            const currentDate = new Date();
+            const latestDate = new Date(date);
 
-      if (diff < 60 * 60 * 1000) {
-        setFormattedDate(`12 минут назад`);
-      } 
-      else if (diff < 24 * 60 * 60 * 1000) {
-        setFormattedDate(`5 часов назад`);
-      } 
-      else {
-        setFormattedDate(`прошло больше суток`);
-      }
-    }, [date]);
+            const diff =  Math.floor((currentDate - latestDate) / (1000 * 60));
 
-    return <Component {...rest} date={formattedDate} />;
-  };
+            console.log(diff);
 
-  return FormattedDate;
+            if (diff <= 60) {
+                setFormattedDate(`12 минут назад`);
+            } 
+            else if (diff <= 24 * 60) {
+                setFormattedDate(`5 часов назад`);
+            } 
+            else {
+                setFormattedDate(`прошло больше суток`);
+            }
+        }, [date]);
+
+        return <Component date={formattedDate} />;
+    };
 };
 
 const FormattedDateTime = withFormattedDate(DateTime);
